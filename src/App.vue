@@ -6,7 +6,10 @@
       Last result: <b>{{ result }}</b>
     </p>
 
-    <qrcode-stream @detect="onDetect" @error="onError" />
+    <div style="height: 200px; width: 200px;">
+      <qrcode-stream @detect="onDetect" @error="onError" />
+    </div>
+    
   </div>
 </template>
 
@@ -26,14 +29,14 @@ const errorMessages = {
   InsecureContextError: 'Camera access is only permitted in secure context. Use HTTPS or localhost rather than HTTP.'
 }
 
-const onDetect = detectedCodes => {
+const onDetect = (detectedCodes: [any]) => {
   console.log(detectedCodes)
 
   const [ firstCode ] = detectedCodes
   result.value = firstCode.rawValue
 }
 
-const onError = err => {
+const onError = (err: { name: string | number; message: any; }) => {
   error.value = `[${err.name}]: ` + (errorMessages[err.name] || err.message)
 }
 </script>
