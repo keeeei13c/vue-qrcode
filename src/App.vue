@@ -2,13 +2,16 @@
   <div>
     <p class="error">{{ error }}</p>
 
-    <p class="decode-result">
-      Last result: <b>{{ result }}</b>
+    <p class="decode-results">
+      Last results:
+      <ul>
+        <li v-for="r in results" :key="r"><b>{{ r }}</b></li>
+      </ul>
     </p>
 
-    <div style="height: 200px; width: 200px;">
+    <!-- <div style="height: 800px; width: 800px;"> -->
       <qrcode-stream @detect="onDetect" @error="onError" />
-    </div>
+    <!-- </div> -->
     
   </div>
 </template>
@@ -17,9 +20,13 @@
 import { ref } from 'vue'
 import { QrcodeStream } from 'vue-qrcode-reader'
 
-const [ result, error ] = [ ref(''), ref('') ]
-  
-const errorMessages = {
+interface ErrorMessages {
+  [key: string]: string;
+}
+
+const [ results, error ] = [ ref<Array<string>>([]), ref('') ]
+
+const errorMessages: ErrorMessages = {
   NotAllowedError: 'you need to grant camera access permission',
   NotFoundError: 'no camera on this device',
   NotSupportedError: 'secure context required (HTTPS, localhost)',
@@ -32,12 +39,13 @@ const errorMessages = {
 const onDetect = (detectedCodes: [any]) => {
   console.log(detectedCodes)
 
-  const [ firstCode ] = detectedCodes
-  result.value = firstCode.rawValue
+  for (const code of detectedCodes) {
+    results.value.push(code.rawValue)
+  }
 }
 
-const onError = (err: { name: string | number; message: any; }) => {
-  error.value = `[${err.name}]: ` + (errorMessages[err.name] || err.message)
+const onError = (err: { name: keyof ErrorMessages; message: any; }) => {
+  error.value = `[${err.name}]: ` + (errorMessages[err.name as keyof ErrorMessages] || err.message)
 }
 </script>
 
